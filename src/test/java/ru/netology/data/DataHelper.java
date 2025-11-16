@@ -6,7 +6,7 @@ import lombok.Value;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 // Данный класс как пример генерации тестовых данных
-// Вместа передачи данных через сценарий (feature)
+// Вместо передачи данных через сценарий (feature)
 // можно вызывать подобные методы непосредственно в шагах сценария (steps)
 public class DataHelper {
 

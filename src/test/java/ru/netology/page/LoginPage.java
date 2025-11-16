@@ -14,16 +14,18 @@ public class LoginPage {
     private SelenideElement loginButton = $("[data-test-id=action-login]");
     private SelenideElement errorMessage = $("[data-test-id=error-notification]");
 
-    public VerificationPage validLogin(String login,String password) {
-        login(login,password);
+    public VerificationPage validLogin(String login, String password) {
+        login(login, password);
         return new VerificationPage();
     }
-    public void login(String login,String password) {
+
+    public void login(String login, String password) {
         loginField.setValue(login);
         passwordField.setValue(password);
         loginButton.click();
     }
-    public void authErrorMessage(String expText){
+
+    public void authErrorMessage(String expText) {
         errorMessage.should(Condition.visible).shouldHave(Condition.text(expText));
     }
 }

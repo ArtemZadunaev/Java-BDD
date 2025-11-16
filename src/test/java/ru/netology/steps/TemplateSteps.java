@@ -2,6 +2,9 @@ package ru.netology.steps;
 
 import com.codeborne.selenide.Selenide;
 import io.cucumber.java.ru.И;
+import io.cucumber.java.ru.Когда;
+import io.cucumber.java.ru.Пусть;
+import io.cucumber.java.ru.Тогда;
 import org.junit.jupiter.api.Assertions;
 import ru.netology.page.DashboardPage;
 import ru.netology.page.LoginPage;
@@ -14,66 +17,57 @@ public class TemplateSteps {
     private static DashboardPage dashboardPage;
     private static VerificationPage verificationPage;
     private static TransferPage transferpage;
-    private int expBalanceFromCard;
-    private int expBalanceToCard;
-    private String fromCardNumber;
-    private String toCardNumber;
+    int startBalanceToCard;
+    int startBalanceFromCard;
+    int finalBalanceToCard;
+    int finalBalanceFromCard;
 
-
-    @И("открыта страница с формой авторизации {string}")
+    @Пусть("открыта страница с формой авторизации {string}")
     public void openAuthPage(String url) {
         loginPage = Selenide.open(url, LoginPage.class);
     }
 
-
-    @И("пользователь пытается авторизоваться с именем {string} и паролем {string}")
+    @Когда("пользователь пытается авторизоваться с именем {string} и паролем {string}")
     public void loginWithNameAndPassword(String login, String password) {
         verificationPage = loginPage.validLogin(login, password);
     }
-    @И("пользователь выбирает карту {string} для перевода")
-    public void selectCardToTransfer(String cardNumber){
-        expBalanceToCard= dashboardPage.getCardBalance(cardNumber);
-        toCardNumber=cardNumber;
-        transferpage = dashboardPage.cardTransfer(cardNumber);
-    }
+
     @И("пользователь вводит проверочный код 'из смс' {string}")
     public void setValidCode(String verificationCode) {
         dashboardPage = verificationPage.validVerify(verificationCode);
     }
 
-    @И("происходит успешная авторизация и пользователь попадает на страницу 'Личный кабинет'")
+    @Тогда("происходит успешная авторизация и пользователь попадает на страницу 'Личный кабинет'")
     public void verifyDashboardPage() {
         dashboardPage.verifyIsDashboardPage();
     }
 
-    @И("появляется ошибка о неверном коде проверки")
+    @Тогда("появляется ошибка о неверном коде проверки")
     public void verifyCodeIsInvalid() {
         verificationPage.verifyCodeIsInvalid();
     }
-    @И("пользователь вводит сумму {int} и номер карты {string} с которой списать средства и нажимает кнопку перевода")
-     public void transferFromCard(int amount,String fromCard){
-        transferpage.chancelTransfer();
-        fromCardNumber = fromCard;
-        expBalanceFromCard= dashboardPage.getCardBalance(fromCardNumber);
-        selectCardToTransfer(toCardNumber);
-        expBalanceFromCard-=amount;
-        expBalanceToCard+=amount;
 
-        transferpage.transferFromCard(fromCard,amount);
-    }
-    @И("пользователь видит страницу cо списком карт")
-    public void succesfullTransfer(){
+    @Пусть("пользователь залогинен с именем {string} и паролем {string}")
+    public void validLogin(String name, String pass) {
+        openAuthPage("http://localhost:9999");
+        loginWithNameAndPassword(name, pass);
+        setValidCode("12345");
         verifyDashboardPage();
-
-    }
-    @И("пользователь проверяет правильность перевода")
-    public void verifyTransaction(){
-        Assertions.assertEquals(expBalanceFromCard,dashboardPage.getCardBalance(fromCardNumber));
-        Assertions.assertEquals(expBalanceToCard,dashboardPage.getCardBalance(toCardNumber));
     }
 
-    @И("происходит переход на страницу перевода")
-    public void verifyTRansferPage(){
+    @Когда("пользователь переводит {int} рублей с карты с номером {string} на свою 1 карту с главной страницы")
+    public void validTransaction(int amount, String fromCardNumber) {
+        startBalanceToCard = dashboardPage.getCardBalance("5559 0000 0000 0001");
+        startBalanceFromCard = dashboardPage.getCardBalance(fromCardNumber);
+        transferpage = dashboardPage.cardTransfer("5559 0000 0000 0001");
         transferpage.verifyTransferPage();
+        transferpage.transferFromCard(fromCardNumber, amount);
+        finalBalanceFromCard = dashboardPage.getCardBalance(fromCardNumber);
+        finalBalanceToCard = dashboardPage.getCardBalance("5559 0000 0000 0001");
+    }
+
+    @Тогда("Тогда баланс его 1 карты из списка на главной странице должен стать {int} рублей")
+    public void verifyBalance(int expectedAmount) {
+        Assertions.assertEquals(expectedAmount, finalBalanceToCard);
     }
 }

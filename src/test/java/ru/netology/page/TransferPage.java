@@ -16,7 +16,7 @@ public class TransferPage {
     SelenideElement to = $("[data-test-id=to] input");
     SelenideElement transferButton = $("[data-test-id=action-transfer].button");
     ElementsCollection chancelButton = $$("button");
-    String hiddenNumCardFrom ;
+    String hiddenNumCardFrom;
 
     public TransferPage(String hiddenCardNumberFrom) {
         to.shouldBe(visible).shouldHave(Condition.value(hiddenCardNumberFrom));
@@ -39,8 +39,8 @@ public class TransferPage {
 
     }
 
-public void verifyTransferPage(){
+    public void verifyTransferPage() {
         amount.shouldBe(visible);
         from.shouldBe(visible);
-}
+    }
 }

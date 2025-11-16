@@ -18,16 +18,19 @@ public class DashboardPage {
     private final String balanceStart = "баланс: ";
     private final String balanceFinish = " р.";
 
-    public void verifyIsDashboardPage(){
+    public void verifyIsDashboardPage() {
         heading.shouldBe(visible);
     }
+
     private SelenideElement getCardElement(String cardNumber) {
         return cards.findBy(Condition.attribute("data-test-id", getcardTestId(cardNumber)));
     }
-    private String getcardTestId(String cardNumber){
+
+    private String getcardTestId(String cardNumber) {
         String hiddenNumber = getCardDisableValue(cardNumber);
         return cards.find(Condition.text(hiddenNumber)).getAttribute("data-test-id");
     }
+
     private String getCardDisableValue(String cardNumber) {
         String cutCardNum = cardNumber.substring(15);
         cutCardNum = MessageFormat.format(

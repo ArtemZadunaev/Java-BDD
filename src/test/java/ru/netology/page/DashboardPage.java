@@ -23,10 +23,10 @@ public class DashboardPage {
     }
 
     private SelenideElement getCardElement(String cardNumber) {
-        return cards.findBy(Condition.attribute("data-test-id", getcardTestId(cardNumber)));
+        return cards.findBy(Condition.attribute("data-test-id", getCardTestId(cardNumber)));
     }
 
-    private String getcardTestId(String cardNumber) {
+    private String getCardTestId(String cardNumber) {
         String hiddenNumber = getCardDisableValue(cardNumber);
         return cards.find(Condition.text(hiddenNumber)).getAttribute("data-test-id");
     }
@@ -38,6 +38,14 @@ public class DashboardPage {
                 cutCardNum);
 
         return cutCardNum;
+    }
+    public  TransferPage transferById(int index){
+        cards.get(index-1).find(By.cssSelector("[data-test-id=action-deposit]")).click();
+        return new TransferPage();
+    }
+    public int getBalanceByIndex(int index){
+        String textElement= cards.get(index-1).getText();
+        return extractBalance(textElement);
     }
 
     private SelenideElement getCardTransferButton(String cardNumber) {

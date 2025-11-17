@@ -10,6 +10,12 @@ import lombok.Value;
 // можно вызывать подобные методы непосредственно в шагах сценария (steps)
 public class DataHelper {
 
+    public static VerificationCode getVerificationCodeFor(AuthInfo authInfo) {
+        return new VerificationCode("12345");
+    }
+    public static AuthInfo getAuthInfo() {
+        return new AuthInfo("vasya", "qwerty123");
+    }
     @Value
     public static class VerificationCode {
         String code;

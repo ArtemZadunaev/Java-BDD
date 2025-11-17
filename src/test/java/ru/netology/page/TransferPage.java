@@ -22,6 +22,9 @@ public class TransferPage {
         to.shouldBe(visible).shouldHave(Condition.value(hiddenCardNumberFrom));
         this.hiddenNumCardFrom = hiddenCardNumberFrom;
     }
+    public  TransferPage(){
+
+    }
 
     private SelenideElement getChancelButton() {
         return chancelButton.find(Condition.text("Отмена"));

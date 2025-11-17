@@ -6,10 +6,17 @@ import io.cucumber.java.ru.Когда;
 import io.cucumber.java.ru.Пусть;
 import io.cucumber.java.ru.Тогда;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import ru.netology.data.DataHelper;
 import ru.netology.page.DashboardPage;
 import ru.netology.page.LoginPage;
 import ru.netology.page.TransferPage;
 import ru.netology.page.VerificationPage;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class TemplateSteps {
@@ -17,10 +24,12 @@ public class TemplateSteps {
     private static DashboardPage dashboardPage;
     private static VerificationPage verificationPage;
     private static TransferPage transferpage;
+    private DataHelper data;
     int startBalanceToCard;
     int startBalanceFromCard;
     int finalBalanceToCard;
     int finalBalanceFromCard;
+
 
     @Пусть("открыта страница с формой авторизации {string}")
     public void openAuthPage(String url) {
@@ -51,23 +60,25 @@ public class TemplateSteps {
     public void validLogin(String name, String pass) {
         openAuthPage("http://localhost:9999");
         loginWithNameAndPassword(name, pass);
-        setValidCode("12345");
+        DataHelper.AuthInfo user = new DataHelper.AuthInfo(name, pass);
+        var verCode = DataHelper.getVerificationCodeFor(user);
+        setValidCode(verCode.getCode());
         verifyDashboardPage();
     }
 
-    @Когда("пользователь переводит {int} рублей с карты с номером {string} на свою 1 карту с главной страницы")
-    public void validTransaction(int amount, String fromCardNumber) {
-        startBalanceToCard = dashboardPage.getCardBalance("5559 0000 0000 0001");
+    @Когда("пользователь переводит {int} рублей с карты с номером {string} на свою {int} карту с главной страницы")
+    public void validTransaction(int amount, String fromCardNumber, int cardIndex) {
+        startBalanceToCard = dashboardPage.getBalanceByIndex(cardIndex);
         startBalanceFromCard = dashboardPage.getCardBalance(fromCardNumber);
-        transferpage = dashboardPage.cardTransfer("5559 0000 0000 0001");
+        transferpage = dashboardPage.transferById(cardIndex);
         transferpage.verifyTransferPage();
         transferpage.transferFromCard(fromCardNumber, amount);
         finalBalanceFromCard = dashboardPage.getCardBalance(fromCardNumber);
-        finalBalanceToCard = dashboardPage.getCardBalance("5559 0000 0000 0001");
+        finalBalanceToCard = dashboardPage.getBalanceByIndex(cardIndex);
     }
 
-    @Тогда("Тогда баланс его 1 карты из списка на главной странице должен стать {int} рублей")
-    public void verifyBalance(int expectedAmount) {
-        Assertions.assertEquals(expectedAmount, finalBalanceToCard);
+    @Тогда("Тогда баланс его {int} карты из списка на главной странице должен стать {int} рублей")
+    public void verifyBalance(int cardIndex, int expectedAmount) {
+        Assertions.assertEquals(expectedAmount, dashboardPage.getBalanceByIndex(cardIndex));
     }
 }
